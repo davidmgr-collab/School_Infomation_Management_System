@@ -1,0 +1,454 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   SIMS - MODERN DESIGN SYSTEM
+======================================== */
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #172b4d;
+  background: #f3f6fc;
+
+  --primary: #173b70;
+  --primary-dark: #10294f;
+  --primary-light: #2563eb;
+  --accent: #f59e0b;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --background: #f3f6fc;
+  --surface: #ffffff;
+  --border: #e1e8f2;
+  --text: #172b4d;
+  --muted: #64748b;
+  --shadow: 0 8px 30px rgba(23, 59, 112, 0.07);
+}
+
+/* ========================================
+   GLOBAL RESET
+======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--background);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+::selection {
+  background: #bfdbfe;
+  color: #173b70;
+}
+
+/* ========================================
+   SCROLLBAR
+======================================== */
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: #edf2f8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b7c8df;
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7896bd;
+}
+
+/* ========================================
+   PAGE CONTAINER
+======================================== */
+
+.container-page {
+  width: min(1200px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+/* ========================================
+   PANELS AND CARDS
+======================================== */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  transition:
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.panel:hover {
+  border-color: #cbdcf2;
+  box-shadow: 0 12px 35px rgba(23, 59, 112, 0.10);
+}
+
+.panel-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+  transition: all 0.25s ease;
+}
+
+.panel-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 35px rgba(23, 59, 112, 0.12);
+}
+
+/* ========================================
+   PAGE HEADINGS
+======================================== */
+
+.page-title {
+  color: var(--primary);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 850;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.25rem;
+  line-height: 1.2;
+}
+
+.section-title {
+  color: var(--primary);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.section-subtitle {
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin-top: 5px;
+}
+
+/* ========================================
+   FORMS
+======================================== */
+
+.field {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #d5dfed;
+  background: white;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.field:hover {
+  border-color: #a9bfdc;
+}
+
+.field:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.field::placeholder {
+  color: #94a3b8;
+}
+
+.field:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.form-label {
+  display: block;
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+/* ========================================
+   BUTTONS
+======================================== */
+
+.btn-primary {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #173b70, #2563eb);
+  color: white;
+  padding: 11px 19px;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 750;
+  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.20);
+  transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #10294f, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.28);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  background: #eaf1fb;
+  color: var(--primary);
+  padding: 11px 19px;
+  border: 1px solid #d8e5f6;
+  border-radius: 10px;
+  font-weight: 750;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #dbeafe;
+  border-color: #b8d2f4;
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   TABLES
+======================================== */
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+thead th {
+  background: #edf4ff;
+  color: var(--primary);
+  font-weight: 800;
+  white-space: nowrap;
+  letter-spacing: 0.015em;
+}
+
+tbody tr {
+  transition: background 0.18s ease;
+}
+
+tbody tr:hover {
+  background: #f5f9ff;
+}
+
+tbody td {
+  color: #334155;
+  vertical-align: middle;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ========================================
+   BADGES
+======================================== */
+
+.badge-primary {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 30px;
+  padding: 5px 11px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.badge-success {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 30px;
+  padding: 5px 11px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.badge-warning {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 30px;
+  padding: 5px 11px;
+  background: #ffedd5;
+  color: #c2410c;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* ========================================
+   HERO SECTION
+======================================== */
+
+.hero-grid {
+  position: relative;
+  overflow: hidden;
+  background-image:
+    linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px),
+    radial-gradient(circle at 85% 20%, rgba(59,130,246,.28), transparent 35%),
+    linear-gradient(120deg, #10294f, #173b70, #1e4c86);
+  background-size:
+    32px 32px,
+    32px 32px,
+    auto,
+    auto;
+}
+
+/* ========================================
+   NAVIGATION
+======================================== */
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.12);
+  transform: translateX(3px);
+}
+
+.nav-link.active {
+  background: white;
+  color: var(--primary);
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+
+/* ========================================
+   ANIMATIONS
+======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease both;
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.65;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s infinite;
+}
+
+/* ========================================
+   ACCESSIBILITY
+======================================== */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
+
+@media (max-width: 768px) {
+  .container-page {
+    width: min(100% - 1.25rem, 1200px);
+  }
+
+  .page-title {
+    font-size: 1.55rem;
+  }
+
+  .panel {
+    border-radius: 12px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    min-height: 42px;
+  }
+}
