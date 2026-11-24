@@ -1,11 +1,19 @@
 
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import api, { getResponseData } from '../services/api';
 import { Search, Download, FileText, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-const MINES_REQUIRED_AMOUNT = 92000;
+const MINES_REQUIRED_AMOUNT = 110000;
+
+const TICKET_LOCATIONS = {
+  Gicumbi: 0,
+  Byumba: 4500,
+  Kigali: 5500,
+  Musanze: 9000,
+  Nyagatare: 5000
+};
 
 const today = () => {
   const date = new Date();
@@ -68,6 +76,7 @@ function StudentTable({
   materials,
   onStatusChange,
   onPaymentChange,
+  onTicketChange,
   emptyMessage,
   completed = false
 }) {
@@ -115,15 +124,21 @@ function StudentTable({
               <th className="p-4 text-left font-bold">Student Name</th>
 
               {materials.map(material => (
-                <th key={material.key} className="p-4 text-center font-bold">
-                  {material.label}
+                <Fragment key={material.key}>
+                  <th className="p-4 text-center font-bold">
+                    {material.label}
+
+                    {material.key === 'enter_mines' && (
+                      <div className="mt-1 text-xs font-medium text-blue-100">
+                        Required: 110,000 FRW
+                      </div>
+                    )}
+                  </th>
 
                   {material.key === 'enter_mines' && (
-                    <div className="mt-1 text-xs font-medium text-blue-100">
-                      Required: 92,000 FRW
-                    </div>
+                    <th className="p-4 text-center font-bold">TICKET</th>
                   )}
-                </th>
+                </Fragment>
               ))}
 
               <th className="p-4 text-center font-bold">DECISION STATUS</th>
@@ -155,7 +170,8 @@ function StudentTable({
                   </td>
 
                   {materials.map(material => (
-                    <td key={material.key} className="p-3">
+                    <Fragment key={material.key}>
+                      <td className="p-3">
                       {material.key === 'enter_mines' ? (
                         <div className="min-w-44 space-y-2">
                           <input
@@ -204,6 +220,39 @@ function StudentTable({
                         />
                       )}
                     </td>
+
+                    {material.key === 'enter_mines' && (
+                      <td className="p-3">
+                        <div className="min-w-40 space-y-2">
+                          <select
+                            value={student.ticket_location || ''}
+                            onChange={event =>
+                              onTicketChange(
+                                student.enrollment_id,
+                                event.target.value
+                              )
+                            }
+                            className="field w-full rounded-xl border-slate-200 bg-white text-sm shadow-sm transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                          >
+                            <option value="">Select location</option>
+                            <option value="Gicumbi">Gicumbi</option>
+                            <option value="Byumba">Byumba</option>
+                            <option value="Kigali">Kigali</option>
+                            <option value="Musanze">Musanze</option>
+                            <option value="Nyagatare">Nyagatare</option>
+                          </select>
+
+                          <p className="text-center text-xs font-bold text-slate-600">
+                            {student.ticket_location
+                              ? `${Number(
+                                  student.ticket_amount ?? TICKET_LOCATIONS[student.ticket_location]
+                                ).toLocaleString('en-RW')} FRW`
+                              : 'No location selected'}
+                          </p>
+                        </div>
+                      </td>
+                    )}
+                    </Fragment>
                   ))}
 
                   <td className="p-4 text-center">
@@ -237,7 +286,7 @@ function StudentTable({
             {students.length === 0 && (
               <tr>
                 <td
-                  colSpan={materials.length + 6}
+                  colSpan={materials.length + 7}
                   className="p-12 text-center"
                 >
                   <div className="mx-auto flex max-w-sm flex-col items-center gap-3">
@@ -452,6 +501,8 @@ export default function MaterialsChecking() {
           paid_amounts: {
             enter_mines: amount
           },
+          ticket_location: student.ticket_location || '',
+          ticket_amount: student.ticket_amount ?? null,
           isChecked: Boolean(student.check_id)
         };
       });
@@ -520,12 +571,30 @@ export default function MaterialsChecking() {
     );
   };
 
+  const updateStudentTicket = (enrollmentId, location) => {
+    setStudents(current =>
+      current.map(student => {
+        if (student.enrollment_id !== enrollmentId) {
+          return student;
+        }
+
+        return {
+          ...student,
+          ticket_location: location,
+          ticket_amount: location ? TICKET_LOCATIONS[location] : null,
+          isChecked: true
+        };
+      })
+    );
+  };
+
   const saveChecks = async () => {
     const records = students
       .filter(student => student.isChecked)
       .map(student => ({
         enrollment_id: student.enrollment_id,
         items: student.items,
+        ticket_location: student.ticket_location || '',
         paid_amounts: {
           enter_mines: student.paid_amounts?.enter_mines === ''
             ? 0
@@ -841,6 +910,7 @@ export default function MaterialsChecking() {
             materials={materials}
             onStatusChange={updateStudentStatus}
             onPaymentChange={updateStudentPayment}
+            onTicketChange={updateStudentTicket}
             completed
             emptyMessage="No student has completed all requirements yet."
           />
@@ -851,6 +921,7 @@ export default function MaterialsChecking() {
             materials={materials}
             onStatusChange={updateStudentStatus}
             onPaymentChange={updateStudentPayment}
+            onTicketChange={updateStudentTicket}
             emptyMessage="All students have completed the requirements."
           />
 

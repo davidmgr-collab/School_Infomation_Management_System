@@ -6,7 +6,9 @@ const students = require('../controllers/studentController');
 const academic = require('../controllers/academicController');
 const attendance = require('../controllers/attendanceController');
 const materialsChecking = require('../controllers/materialsCheckingController');
+const tickets = require('../controllers/ticketsController');
 const users = require('../controllers/userController');
+const publicController = require('../controllers/publicController');
 
 const {
   authenticate,
@@ -15,6 +17,10 @@ const {
 
 const router = express.Router();
 
+// ==========================================
+// HEALTH CHECK
+// ==========================================
+
 router.get('/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -22,11 +28,53 @@ router.get('/health', (req, res) => {
   });
 });
 
-// Authentication
-router.post('/auth/login', auth.login);
-router.get('/auth/profile', authenticate, auth.profile);
+// ==========================================
+// PUBLIC PARENT DASHBOARD
+// Read-only endpoints (no login required)
+// ==========================================
 
-// Students
+router.get(
+  '/public/academic',
+  publicController.academic
+);
+
+router.get(
+  '/public/students',
+  publicController.students
+);
+
+router.get(
+  '/public/statistics',
+  publicController.statistics
+);
+
+router.get(
+  '/public/materials/:term_id',
+  publicController.materials
+);
+
+router.get(
+  '/public/tickets',
+  publicController.tickets
+);
+
+// ==========================================
+// AUTHENTICATION
+// ==========================================
+
+router.post('/auth/login', auth.login);
+
+router.get(
+  '/auth/profile',
+  authenticate,
+  auth.profile
+);
+
+// ==========================================
+// STUDENTS
+// ==========================================
+
+// Existing endpoint
 router.get('/students', students.list);
 
 router.post(
@@ -50,13 +98,22 @@ router.delete(
   students.remove
 );
 
-// Academic information
+// ==========================================
+// ACADEMIC INFORMATION
+// ==========================================
+
 router.get('/academic/years', academic.years);
+
 router.get('/academic/terms', academic.terms);
+
 router.get('/academic/levels', academic.levels);
+
 router.get('/academic/combinations', academic.combinations);
 
-// Attendance
+// ==========================================
+// ATTENDANCE
+// ==========================================
+
 router.get(
   '/attendance',
   authenticate,
@@ -71,7 +128,10 @@ router.post(
   attendance.save
 );
 
-// Materials checking
+// ==========================================
+// MATERIALS CHECKING
+// ==========================================
+
 router.get(
   '/materials-checking',
   authenticate,
@@ -86,7 +146,21 @@ router.post(
   materialsChecking.save
 );
 
-// Users
+// ==========================================
+// STUDENT TICKETS
+// ==========================================
+
+router.get(
+  '/tickets',
+  authenticate,
+  allowRoles('admin', 'animation'),
+  tickets.list
+);
+
+// ==========================================
+// USERS
+// ==========================================
+
 router.get(
   '/users',
   authenticate,

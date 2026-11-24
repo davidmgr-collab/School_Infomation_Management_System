@@ -1,39 +1,17 @@
 
 const db = require('../config/db');
 
-const MINES_REQUIRED_AMOUNT = 92000;
-
-const TERM_MATERIALS = {
-  1: [
-    'ram',
-    'buckets',
-    'ikiyiko',
-    'ifoke',
-    'isahane',
-    'igikombe',
-    'ph',
-    'net',
-    'enter_mines',
-    'decision'
-  ],
-
-  2: [
-    'ph',
-    'enter_mines',
-    'decision',
-    'trip'
-  ],
-
-  3: [
-    'ph',
-    'enter_mines',
-    'decision'
-  ]
-};
+const {
+  TICKET_PRICES,
+  TERM_MATERIALS,
+  MATERIAL_PRICES,
+  MINES_REQUIRED_AMOUNT,
+  TERM_TOTALS
+} = require('../config/materialConfig');
 
 const VALID_STATUS = ['OK', 'NYC'];
 
-// GET: Load students and their material checking records.
+// GET: Load students, material checking and ticket records.
 exports.list = async (req, res, next) => {
   try {
     const {
@@ -62,7 +40,8 @@ exports.list = async (req, res, next) => {
     }
 
     const term = termRows[0];
-    const materials = TERM_MATERIALS[term.term_number] || [];
+    const termNumber = Number(term.term_number);
+    const materials = TERM_MATERIALS[termNumber] || [];
 
     if (!materials.length) {
       return res.status(400).json({
@@ -77,12 +56,17 @@ exports.list = async (req, res, next) => {
           s.admission_number,
           s.first_name,
           s.last_name,
+
           mcs.id AS check_id,
           mcs.checked_at,
           checker.full_name AS checked_by_name,
+
           mci.material_key,
           mci.material_status,
-          mci.paid_amount
+          mci.paid_amount,
+
+          st.location AS ticket_location,
+          st.amount AS ticket_amount
 
        FROM student_enrollments e
 
@@ -100,6 +84,10 @@ exports.list = async (req, res, next) => {
        LEFT JOIN users checker
           ON checker.id = mcs.checked_by
 
+       LEFT JOIN student_tickets st
+          ON st.enrollment_id = e.id
+          AND st.term_id = ?
+
        WHERE e.academic_year_id = ?
          AND e.combination_id = ?
          AND e.status = 'active'
@@ -109,6 +97,7 @@ exports.list = async (req, res, next) => {
       [
         term_id,
         checking_date,
+        term_id,
         term.academic_year_id,
         combination_id
       ]
@@ -124,9 +113,17 @@ exports.list = async (req, res, next) => {
           admission_number: row.admission_number,
           first_name: row.first_name,
           last_name: row.last_name,
+
           check_id: row.check_id,
           items: {},
           paid_amounts: {},
+
+          ticket_location: row.ticket_location || '',
+          ticket_amount:
+            row.ticket_amount === null
+              ? null
+              : Number(row.ticket_amount),
+
           checked_at: row.checked_at,
           checked_by_name: row.checked_by_name
         });
@@ -148,8 +145,15 @@ exports.list = async (req, res, next) => {
 
     res.json({
       data: Array.from(studentsMap.values()),
-      term_number: term.term_number,
-      materials
+      term_number: termNumber,
+      materials,
+
+      // New price information for the administration dashboard.
+      material_prices: MATERIAL_PRICES[termNumber] || {},
+      total_material_amount: Number(TERM_TOTALS[termNumber] || 0),
+
+      mines_required_amount: MINES_REQUIRED_AMOUNT,
+      ticket_prices: TICKET_PRICES
     });
 
   } catch (error) {
@@ -157,7 +161,7 @@ exports.list = async (req, res, next) => {
   }
 };
 
-// POST: Save or update material checking records.
+// POST: Save or update material checking and ticket records.
 exports.save = async (req, res, next) => {
   let connection;
 
@@ -195,7 +199,8 @@ exports.save = async (req, res, next) => {
     }
 
     const term = termRows[0];
-    const allowedMaterials = TERM_MATERIALS[term.term_number];
+    const termNumber = Number(term.term_number);
+    const allowedMaterials = TERM_MATERIALS[termNumber];
 
     if (!allowedMaterials) {
       return res.status(400).json({
@@ -239,6 +244,22 @@ exports.save = async (req, res, next) => {
         });
       }
 
+      // Validate ticket location.
+      const ticketLocation = record.ticket_location || '';
+
+      if (
+        ticketLocation !== '' &&
+        !Object.prototype.hasOwnProperty.call(
+          TICKET_PRICES,
+          ticketLocation
+        )
+      ) {
+        return res.status(400).json({
+          message: 'Invalid ticket location selected.'
+        });
+      }
+
+      // Validate material statuses.
       for (const key of allowedMaterials) {
         if (key === 'enter_mines') {
           continue;
@@ -281,7 +302,7 @@ exports.save = async (req, res, next) => {
         record.paid_amounts?.enter_mines ?? 0
       );
 
-      // Calculate ENTER MINES status automatically.
+      // Calculate MINES status using the new 110,000 FRW requirement.
       const minesStatus =
         amount >= MINES_REQUIRED_AMOUNT ? 'OK' : 'NYC';
 
@@ -351,12 +372,46 @@ exports.save = async (req, res, next) => {
           ]
         );
       }
+
+      // Save or update the student's ticket.
+      const ticketLocation = record.ticket_location || '';
+
+      if (ticketLocation) {
+        const ticketAmount = TICKET_PRICES[ticketLocation];
+
+        await connection.execute(
+          `INSERT INTO student_tickets
+            (enrollment_id, term_id, location, amount)
+           VALUES (?, ?, ?, ?)
+
+           ON DUPLICATE KEY UPDATE
+             location = VALUES(location),
+             amount = VALUES(amount),
+             updated_at = CURRENT_TIMESTAMP`,
+          [
+            record.enrollment_id,
+            term_id,
+            ticketLocation,
+            ticketAmount
+          ]
+        );
+      } else {
+        await connection.execute(
+          `DELETE FROM student_tickets
+           WHERE enrollment_id = ?
+             AND term_id = ?`,
+          [
+            record.enrollment_id,
+            term_id
+          ]
+        );
+      }
     }
 
     await connection.commit();
 
     res.json({
-      message: 'Student materials checking saved successfully.',
+      message: 'Student materials checking and tickets saved successfully.',
       saved_records: records.length
     });
 

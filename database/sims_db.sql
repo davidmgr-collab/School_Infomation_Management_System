@@ -181,3 +181,20 @@ CREATE TABLE IF NOT EXISTS student_material_check_items (
 
 
 
+CREATE TABLE IF NOT EXISTS student_material_check_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    check_session_id INT NOT NULL,
+    material_key VARCHAR(60) NOT NULL,
+    material_status ENUM('OK', 'NYC') NOT NULL,
+    paid_amount DECIMAL(12,2) NULL DEFAULT NULL,
+
+    UNIQUE KEY uq_material_session_item (
+        check_session_id,
+        material_key
+    ),
+
+    CONSTRAINT fk_material_item_session
+      FOREIGN KEY (check_session_id)
+      REFERENCES student_material_check_sessions(id)
+      ON DELETE CASCADE
+) ENGINE=InnoDB;

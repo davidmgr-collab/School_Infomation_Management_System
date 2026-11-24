@@ -24,6 +24,7 @@ import Students from './pages/Students';
 import Users from './pages/Users';
 import Attendance from './pages/Attendance';
 import MaterialsChecking from './pages/MaterialsChecking';
+import Tickets from './pages/Tickets';
 
 import {
   AdminDashboard,
@@ -76,6 +77,11 @@ export default function App() {
                 <Route
                   path="/animation/materials-checking"
                   element={<MaterialsChecking />}
+                />
+
+                <Route
+                  path="/animation/tickets"
+                  element={<Tickets />}
                 />
               </Route>
 

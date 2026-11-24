@@ -72,7 +72,8 @@ export function PrivateLayout() {
       : user?.role === 'animation'
       ? [
           ['/animation/dashboard', 'Dashboard'],
-          ['/animation/attendance', 'Attendance']
+          ['/animation/attendance', 'Attendance'],
+          ['/animation/tickets', 'View Tickets']
         ]
       : [
           ['/secretary/dashboard', 'Dashboard'],
@@ -126,11 +127,7 @@ export function PrivateLayout() {
                 }`
               }
             >
-              <span
-                className={`mr-3 h-2 w-2 rounded-full transition ${
-                  'group'
-                }`}
-              />
+              <span className="mr-3 h-2 w-2 rounded-full bg-current opacity-70 transition" />
               {label}
             </NavLink>
           ))}
